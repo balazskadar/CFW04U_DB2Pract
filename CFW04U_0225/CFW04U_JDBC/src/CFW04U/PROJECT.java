@@ -8,5 +8,9 @@ public class PROJECT {
 public static void main(String[] args) {
 	DBMethods.Register();
 	DBMethods.ReadAllData();
+	
+	System.out.println("\n-----------------------------------\n");
+	DBMethods.ReadTulajdonosData(); 
+	
 }
 }

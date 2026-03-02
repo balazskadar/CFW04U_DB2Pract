@@ -1,36 +1,27 @@
 package CFW04U;
 import java.sql.*;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 
 public class DBMethods {
 
-	final static String url = "jdbc:sqlite:C:\\Users\\egyetem\\Documents\\GitHub\\CFW04U_adatbazis2\\CFW04U_DB2Pract\\CFW04U_0225\\CFW04U_sql3";
-	
-	
+	final static String url = "jdbc:sqlite:C:\\Users\\egyetem\\Documents\\GitHub\\CFW04U_adatbazis2\\CFW04U_DB2Pract\\CFW04U_0225\\CFW04U_sql3\\autodb.db";
 	
 	public static void Register() {
 		try {
-			
-		
 			Class.forName("org.sqlite.JDBC");
 		} catch (ClassNotFoundException e) {
 			System.out.println("Class not found exception: " + e.getMessage());
 		}
+	} 
 	
-	
-	public static Connection Connect(); {
-	Connection conn = null;
-	try {
-		conn = Drivermanager.getConnection(url);
-	}
+	public static Connection Connect() { 
+		Connection conn = null;
+		try {
+			conn = DriverManager.getConnection(url); 
+		}
 		catch (SQLException e) {
 			System.out.println(e.getMessage());
 		}
-	return conn;
+		return conn;
 	}
 	
 	public static void Disconnect(Connection conn) {
@@ -54,7 +45,7 @@ public class DBMethods {
 			System.out.println("Command: " + command);
 			System.out.println(e.getMessage());
 		}
-		DisConnect(conn);
+		Disconnect(conn); 
 	}
 	
 	public static void ReadAllData() {
@@ -77,7 +68,7 @@ public class DBMethods {
 				tipus = resoult_set.getString("Típus");
 				szin = resoult_set.getString("Szín");
 				kor = resoult_set.getInt("Kor");
-				ar = resoult_set.getint("Ár");
+				ar = resoult_set.getInt("Ár"); 
 				tulaj = resoult_set.getString("Tulaj");
 				System.out.println(
 						rendszam + "\t" +
@@ -93,14 +84,38 @@ public class DBMethods {
 		catch (SQLException e) {
 			System.out.println(e.getMessage());
 		}
-		DisConnect(conn);
-		}
+		Disconnect(conn); 
 	}
-	
-	
-	
-	
-	
+	//oszlopok , sorok megszamolasa
+	public static void ReadTulajdonosData() {
+		String sqlp = "SELECT * FROM Tulajdonos"; 
+		Connection conn = Connect();
+		
+		System.out.println("Tulajdonos tábla\n");
+		
+		try {
+			Statement statement = conn.createStatement();
+			ResultSet result_set = statement.executeQuery(sqlp);
+			
+			ResultSetMetaData rsmd = result_set.getMetaData();
+			int columnsNumber = rsmd.getColumnCount();
+			
+			while(result_set.next()) {
+				
+				for (int i = 1; i <= columnsNumber; i++) {
+					if (i > 1) System.out.print("\t");
+					System.out.print(result_set.getString(i));
+				}
+				System.out.println();
+			}
+			result_set.close();
+		}
+		catch (SQLException e) {
+			System.out.println(e.getMessage());
+		}
+		Disconnect(conn);
+	}
+}
 	
 	
 	
