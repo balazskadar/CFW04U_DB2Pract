@@ -1,0 +1,7 @@
+DECLARE
+    n NUMBER := 20;
+BEGIN
+    FOR i IN 1..n LOOP
+        DBMS_OUTPUT.PUT_LINE(i);
+    END LOOP;
+END;
