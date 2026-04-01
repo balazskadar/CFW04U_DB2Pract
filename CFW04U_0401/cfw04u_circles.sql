@@ -44,6 +44,32 @@ BEGIN
     Circler(1,5);
 END;
 
+//a kör kerülete és területének kiszALTERámítása eljárással
+CREATE OR REPLACE PROCEDURE CircleCalc (x in number, y in number) IS
+Circumference number;
+Area number;
+BEGIN
+   FOR i IN x..y LOOP
+    Circumference := 2*i*PI();
+    Area := POWER(i,2)*PI();
+    dbms_output.put_line('Radius: '||i||', Circumference: '||Circumference||', Area: '||Area);
+   END LOOP;
+END;
+// a kör adatainak beszúrása a táblával
+create or replace procedure Circler(x in number, y in number) IS 
+Circumference number;
+Area number;
+BEGIN
+   FOR i IN x..y LOOP
+    Circumference := 2*i*PI();
+    Area := POWER(i,2)*PI();
+    INSERT INTO CIrcles VALUES (i, Circumference, Area);
+   END LOOP;
+    dbms_output.put_line('Radius: '||i||', Circumference: '||Circumference||', Area: '||Area);
+END;
+
+SELECT * FROM Circles;
+
 
 
 
