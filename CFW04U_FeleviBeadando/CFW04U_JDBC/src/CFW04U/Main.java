@@ -6,7 +6,7 @@ import java.text.SimpleDateFormat;
 import java.util.Scanner;
 
 public class Main {
-    // Adatbázis URL (a projekt mappájában fogja létrehozni a szalloda.db fájlt)
+    // Adatbázis 
     private static final String URL = "jdbc:sqlite:szalloda.db";
     private static Scanner scanner = new Scanner(System.in);
     private static Connection conn = null;
@@ -16,7 +16,7 @@ public class Main {
             createTables(); // Táblák létrehozása, ha nem léteznek
             insertDefaultAdmin(); // Alap admin létrehozása teszteléshez
             
-            // 1. KÖVETELMÉNY: Bejelentkezési modul
+            //Bejelentkezési modul
             if (login()) {
                 System.out.println("Sikeres bejelentkezés!\n");
                 showMenu();
@@ -35,7 +35,6 @@ public class Main {
     // Kapcsolódás az adatbázishoz
     private static boolean connect() {
         try {
-            // EZT A SORT ADTUK HOZZÁ: Kézzel betölti a régebbi SQLite drivert
             Class.forName("org.sqlite.JDBC");
             
             conn = DriverManager.getConnection(URL);
@@ -49,7 +48,7 @@ public class Main {
         }
     }
 
-    // Táblák inicializálása (Statement használata - KÖVETELMÉNY)
+    // Táblák inicializálása 
     private static void createTables() {
         String adminTable = "CREATE TABLE IF NOT EXISTS adminok (admin_id INTEGER PRIMARY KEY AUTOINCREMENT, felhasznalonev TEXT, jelszo TEXT);";
         String ugyfelTable = "CREATE TABLE IF NOT EXISTS ugyfelek (ugyfel_id INTEGER PRIMARY KEY AUTOINCREMENT, nev TEXT, telefonszam TEXT, husegpontok INTEGER, regisztracio_datuma TEXT);";
@@ -78,7 +77,7 @@ public class Main {
     }
     
 
-    // Bejelentkezés megvalósítása (PreparedStatement használata - KÖVETELMÉNY)
+    // Bejelentkezés megvalósítása
     private static boolean login() {
         System.out.println("--- BEJELENTKEZÉS ---");
         System.out.print("Felhasználónév (teszt: admin): ");
@@ -123,7 +122,7 @@ public class Main {
         }
     }
 
-    // 1. Új adat felvitele & KÖVETELMÉNY: Dátum helyességének ellenőrzése kódban!
+    // 1. Új adat felvitele 
     private static void addUgyfel() {
         System.out.print("Ügyfél neve: ");
         String nev = scanner.nextLine();
@@ -136,7 +135,7 @@ public class Main {
         System.out.print("Regisztráció dátuma (ÉÉÉÉ-HH-NN formátumban): ");
         String datum = scanner.nextLine();
 
-        // Dátum validáció (KÖVETELMÉNY TELJESÍTÉSE)
+        // Dátum validáció 
         if (!isValidDate(datum)) {
             System.out.println("HIBA: Helytelen dátum formátum vagy nem létező dátum! A felvitel megszakítva.");
             return;
@@ -158,7 +157,7 @@ public class Main {
     // Dátum ellenőrző segédfüggvény
     private static boolean isValidDate(String dateStr) {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        sdf.setLenient(false); // Szigorú ellenőrzés (pl. február 30-át nem engedi)
+        sdf.setLenient(false); 
         try {
             sdf.parse(dateStr);
             return true;
@@ -167,7 +166,7 @@ public class Main {
         }
     }
 
-    // 2. Adatok lekérdezése (KÖVETELMÉNY: szűrés több mező szerint és kapcsolt táblára)
+    // 2. Adatok lekérdezése 
     private static void queryAdatok() {
         System.out.println("\n--- LEKÉRDEZÉS ---");
         System.out.print("Keresett ügyfél neve (hagyjd üresen, ha mindenkit látni akarsz): ");
