@@ -6,17 +6,14 @@ import java.text.SimpleDateFormat;
 import java.util.Scanner;
 
 public class Main {
-    // Adatbázis 
     private static final String URL = "jdbc:sqlite:szalloda.db";
     private static Scanner scanner = new Scanner(System.in);
     private static Connection conn = null;
 
     public static void main(String[] args) {
         if (connect()) {
-            createTables(); // Táblák létrehozása, ha nem léteznek
-            insertDefaultAdmin(); // Alap admin létrehozása teszteléshez
-            
-            //Bejelentkezési modul
+            createTables(); 
+            insertDefaultAdmin(); 
             if (login()) {
                 System.out.println("Sikeres bejelentkezés!\n");
                 showMenu();
@@ -32,7 +29,6 @@ public class Main {
         }
     }
 
-    // Kapcsolódás az adatbázishoz
     private static boolean connect() {
         try {
             Class.forName("org.sqlite.JDBC");
@@ -48,7 +44,6 @@ public class Main {
         }
     }
 
-    // Táblák inicializálása 
     private static void createTables() {
         String adminTable = "CREATE TABLE IF NOT EXISTS adminok (admin_id INTEGER PRIMARY KEY AUTOINCREMENT, felhasznalonev TEXT, jelszo TEXT);";
         String ugyfelTable = "CREATE TABLE IF NOT EXISTS ugyfelek (ugyfel_id INTEGER PRIMARY KEY AUTOINCREMENT, nev TEXT, telefonszam TEXT, husegpontok INTEGER, regisztracio_datuma TEXT);";
@@ -77,7 +72,6 @@ public class Main {
     }
     
 
-    // Bejelentkezés megvalósítása
     private static boolean login() {
         System.out.println("--- BEJELENTKEZÉS ---");
         System.out.print("Felhasználónév (teszt: admin): ");
@@ -90,7 +84,7 @@ public class Main {
             pstmt.setString(1, user);
             pstmt.setString(2, pass);
             ResultSet rs = pstmt.executeQuery();
-            return rs.next(); // Ha van találat, igazat ad vissza
+            return rs.next(); 
         } catch (SQLException e) {
             System.out.println(e.getMessage());
             return false;
@@ -122,7 +116,6 @@ public class Main {
         }
     }
 
-    // 1. Új adat felvitele 
     private static void addUgyfel() {
         System.out.print("Ügyfél neve: ");
         String nev = scanner.nextLine();
@@ -135,7 +128,6 @@ public class Main {
         System.out.print("Regisztráció dátuma (ÉÉÉÉ-HH-NN formátumban): ");
         String datum = scanner.nextLine();
 
-        // Dátum validáció 
         if (!isValidDate(datum)) {
             System.out.println("HIBA: Helytelen dátum formátum vagy nem létező dátum! A felvitel megszakítva.");
             return;
@@ -154,7 +146,6 @@ public class Main {
         }
     }
 
-    // Dátum ellenőrző segédfüggvény
     private static boolean isValidDate(String dateStr) {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         sdf.setLenient(false); 
@@ -165,14 +156,12 @@ public class Main {
             return false;
         }
     }
-
-    // 2. Adatok lekérdezése 
+ 
     private static void queryAdatok() {
         System.out.println("\n--- LEKÉRDEZÉS ---");
         System.out.print("Keresett ügyfél neve (hagyjd üresen, ha mindenkit látni akarsz): ");
         String nevKeres = scanner.nextLine();
         
-        // Két tábla összekapcsolása (JOIN), szűrés névre (LIKE)
         String sql = "SELECT u.ugyfel_id, u.nev, u.husegpontok, f.szobaszam, f.erkezes_datuma " +
                      "FROM ugyfelek u LEFT JOIN foglalasok f ON u.ugyfel_id = f.ugyfel_id " +
                      "WHERE u.nev LIKE ?";
@@ -202,7 +191,6 @@ public class Main {
         }
     }
 
-    // 3. Adatok módosítása
     private static void modifyUgyfel() {
         System.out.print("Módosítandó ügyfél ID-ja: ");
         int id = scanner.nextInt();
@@ -226,7 +214,6 @@ public class Main {
         }
     }
 
-    // 4. Adatok törlése
     private static void deleteUgyfel() {
         System.out.print("Törlendő ügyfél ID-ja: ");
         int id = scanner.nextInt();
