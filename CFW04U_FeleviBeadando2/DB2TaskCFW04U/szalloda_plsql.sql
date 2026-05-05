@@ -108,7 +108,7 @@ CREATE OR REPLACE PACKAGE szalloda_pkg IS
     PROCEDURE ugyfel_hozzadas(p_nev IN VARCHAR2, p_tel IN VARCHAR2, p_datum IN DATE);
     PROCEDURE ugyfel_pont_modositas(p_id IN NUMBER, p_uj_pont IN NUMBER);
     PROCEDURE ugyfel_torles(p_id IN NUMBER);
-    PROCEDURE foglalasok_listazasa(p_ugyfel_id IN NUMBER); -- EXPLICIT KURZORHOZ
+    PROCEDURE foglalasok_listazasa(p_ugyfel_id IN NUMBER);
 END szalloda_pkg;
 /
 
