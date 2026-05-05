@@ -1,8 +1,4 @@
--- =====================================================================
--- 1. TÁBLÁK ÉS SZEKVENCIÁK
--- =====================================================================
 
--- Ügyfelek tábla
 CREATE TABLE ugyfelek (
     ugyfel_id NUMBER PRIMARY KEY,
     nev VARCHAR2(100) NOT NULL,
@@ -11,7 +7,7 @@ CREATE TABLE ugyfelek (
     regisztracio_datuma DATE
 );
 
--- Foglalások tábla
+
 CREATE TABLE foglalasok (
     foglalas_id NUMBER PRIMARY KEY,
     ugyfel_id NUMBER,
@@ -21,7 +17,7 @@ CREATE TABLE foglalasok (
     CONSTRAINT fk_ugyfel FOREIGN KEY (ugyfel_id) REFERENCES ugyfelek(ugyfel_id) ON DELETE CASCADE
 );
 
--- Napló tábla a triggerhez (naplózáshoz)
+
 CREATE TABLE ugyfel_naplo (
     log_id NUMBER PRIMARY KEY,
     muvelet_tipusa VARCHAR2(20),
@@ -29,17 +25,12 @@ CREATE TABLE ugyfel_naplo (
     muvelet_datuma TIMESTAMP
 );
 
--- Szekvenciák az automatikus ID generáláshoz
 CREATE SEQUENCE seq_ugyfel_id START WITH 1 INCREMENT BY 1;
 CREATE SEQUENCE seq_foglalas_id START WITH 1 INCREMENT BY 1;
 CREATE SEQUENCE seq_log_id START WITH 1 INCREMENT BY 1;
 /
 
--- =====================================================================
--- 2. TRIGGEREK
--- =====================================================================
 
--- 2.1 Trigger: Kulcs érték automatikus megadása (INSERT előtt)
 CREATE OR REPLACE TRIGGER trg_ugyfel_auto_id
 BEFORE INSERT ON ugyfelek
 FOR EACH ROW
@@ -50,8 +41,7 @@ BEGIN
 END;
 /
 
--- 2.2 Trigger: Módosítások kontrollálása (UPDATE előtt)
--- Megakadályozza, hogy a hűségpont negatív legyen
+
 CREATE OR REPLACE TRIGGER trg_ugyfel_kontroll
 BEFORE UPDATE ON ugyfelek
 FOR EACH ROW
@@ -62,7 +52,7 @@ BEGIN
 END;
 /
 
--- 2.3 Trigger: Módosítási események naplózása (INSERT, UPDATE, DELETE után)
+
 CREATE OR REPLACE TRIGGER trg_ugyfel_naplozas
 AFTER INSERT OR UPDATE OR DELETE ON ugyfelek
 FOR EACH ROW
@@ -81,23 +71,17 @@ BEGIN
         v_id := :OLD.ugyfel_id;
     END IF;
 
-    -- Napló bejegyzés létrehozása
+
     INSERT INTO ugyfel_naplo (log_id, muvelet_tipusa, erintett_ugyfel_id, muvelet_datuma)
     VALUES (seq_log_id.NEXTVAL, v_muvelet, v_id, SYSTIMESTAMP);
 END;
 /
 
--- =====================================================================
--- 3. TÁROLT FÜGGVÉNYEK
--- =====================================================================
 
--- 3.1 Tárolt függvény: Adott rekord mezőinek lekérdezése (IMPLICIT KURZORRAL)
--- Visszaadja az ügyfél nevét és telefonszámát formázva
 CREATE OR REPLACE FUNCTION get_ugyfel_info(p_ugyfel_id IN NUMBER) RETURN VARCHAR2 IS
     v_nev ugyfelek.nev%TYPE;
     v_tel ugyfelek.telefonszam%TYPE;
 BEGIN
-    -- Implicit kurzor használata
     SELECT nev, telefonszam INTO v_nev, v_tel
     FROM ugyfelek 
     WHERE ugyfel_id = p_ugyfel_id;
@@ -109,8 +93,6 @@ EXCEPTION
 END;
 /
 
--- 3.2 Tárolt függvény: Feltételű rekordok aggregált értéke
--- Kiszámolja, mennyi pénzt költött eddig összesen egy adott ügyfél
 CREATE OR REPLACE FUNCTION get_ugyfel_osszkoltes(p_ugyfel_id IN NUMBER) RETURN NUMBER IS
     v_osszeg NUMBER;
 BEGIN
@@ -122,11 +104,6 @@ BEGIN
 END;
 /
 
--- =====================================================================
--- 4. CSOMAG (PACKAGE) - TÁBLA FUNKCIÓINAK ÖSSZEFOGLALÁSA
--- =====================================================================
-
--- Csomag Specifikáció
 CREATE OR REPLACE PACKAGE szalloda_pkg IS
     PROCEDURE ugyfel_hozzadas(p_nev IN VARCHAR2, p_tel IN VARCHAR2, p_datum IN DATE);
     PROCEDURE ugyfel_pont_modositas(p_id IN NUMBER, p_uj_pont IN NUMBER);
@@ -135,10 +112,8 @@ CREATE OR REPLACE PACKAGE szalloda_pkg IS
 END szalloda_pkg;
 /
 
--- Csomag Kifejtése (Body) - KIVÉTELKEZELÉSSEL
 CREATE OR REPLACE PACKAGE BODY szalloda_pkg IS
 
-    -- 1. Felvitel
     PROCEDURE ugyfel_hozzadas(p_nev IN VARCHAR2, p_tel IN VARCHAR2, p_datum IN DATE) IS
     BEGIN
         INSERT INTO ugyfelek (nev, telefonszam, regisztracio_datuma) 
@@ -151,7 +126,6 @@ CREATE OR REPLACE PACKAGE BODY szalloda_pkg IS
             ROLLBACK;
     END ugyfel_hozzadas;
 
-    -- 2. Módosítás
     PROCEDURE ugyfel_pont_modositas(p_id IN NUMBER, p_uj_pont IN NUMBER) IS
     BEGIN
         UPDATE ugyfelek SET husegpontok = p_uj_pont WHERE ugyfel_id = p_id;
@@ -163,12 +137,10 @@ CREATE OR REPLACE PACKAGE BODY szalloda_pkg IS
         END IF;
     EXCEPTION
         WHEN OTHERS THEN
-            -- Itt kapjuk el a Trigger hibaüzenetét is, ha negatív pontot adnánk!
             DBMS_OUTPUT.PUT_LINE('Hiba a módosításkor: ' || SQLERRM);
             ROLLBACK;
     END ugyfel_pont_modositas;
 
-    -- 3. Törlés
     PROCEDURE ugyfel_torles(p_id IN NUMBER) IS
     BEGIN
         DELETE FROM ugyfelek WHERE ugyfel_id = p_id;
@@ -180,9 +152,7 @@ CREATE OR REPLACE PACKAGE BODY szalloda_pkg IS
             ROLLBACK;
     END ugyfel_torles;
 
-    -- 4. EXPLICIT KURZOR HASZNÁLATA: Kiírja az ügyfél foglalásait
     PROCEDURE foglalasok_listazasa(p_ugyfel_id IN NUMBER) IS
-        -- Explicit kurzor deklarálása
         CURSOR c_foglalasok IS 
             SELECT szobaszam, erkezes_datuma, ar 
             FROM foglalasok 
